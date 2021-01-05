@@ -5,7 +5,6 @@ import grails.rest.Resource
 /**
  * 视频仓库
  */
-@Resource(uri = '/warehouses')
 class Warehouse {
     String name
     String path

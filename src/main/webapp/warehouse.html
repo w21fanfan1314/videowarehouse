@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>仓库</title>
+
+    <script src="libs/axios.min.js"></script>
+    <script src="scripts/crud.js"></script>
+    <script src="scripts/warehouse.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<body>
+    <div id="app">
+        <el-button type="primary" @click="showAddWarehouse=true">新增</el-button>
+        <el-table :data="warehouses" style="width: 100%;">
+            <el-table-column prop="name" label="仓库名称" width="180"></el-table-column>
+            <el-table-column prop="path" label="地址"></el-table-column>
+            <el-table-column prop="videoCount" label="文件数量" width="180"></el-table-column>
+        </el-table>
+
+        <el-dialog title="新增仓库" width="60%" :visible.sync="showAddWarehouse" modal="false">
+            <el-form ref="form" :model="warehouse">
+                <el-form-item label="仓库名称" >
+                    <el-input v-model="warehouse.name" placeholder="名称不可重复"></el-input>
+                </el-form-item>
+                <el-form-item label="仓库路径" >
+                    <el-input v-model="warehouse.path" placeholder="请填写本地目录"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="showAddWarehouse=false">取消</el-button>
+                <el-button type="primary" @click="saveWarehouse" loading="isloading">保存</el-button>
+            </span>
+        </el-dialog>
+    </div>
+
+    <script>
+        const warehouse = new Warehouse()
+        const app = new Vue({
+            el: '#app',
+            data: {
+                warehouses: [],
+                page: 0,
+                count: 20,
+                showAddWarehouse: false,
+                warehouse: {},
+                isloading: false
+            },
+            methods: {
+                loadWarehouse: function () {
+                    warehouse.list(this.page, this.count)
+                        .then(function(resp){
+                            console.log(resp)
+                            if (resp.status === 200) {
+                                app.warehouses = resp.data
+                            } else {
+                                app.$message("状态码:" + resp.status +", 状态:" + resp.statusText)
+                            }
+                        })
+                        .catch(function(err) {
+                            app.$message("获取仓库列表错误," + err)
+                        })
+                },
+                saveWarehouse: function(event) {
+                    console.log(event)
+                    this.isloading = true
+                    warehouse.insert(this.warehouse)
+                            .then(function(resp){
+                                if (resp.status === 200) {
+                                    app.$message("新建仓库成功")
+                                    app.showAddWarehouse = false;
+                                } else {
+                                    app.$message("新建仓库失败, " + resp.statusText)
+                                }
+                                app.isloading = false;
+                            })
+                            .catch(function(err){
+                                app.$message("新建仓库失败," + err)
+                                app.isloading = false;
+                            })
+                }
+            },
+            mounted: function(){
+                this.loadWarehouse()
+            }
+        })
+    </script>
+</body>
+</html>

@@ -5,13 +5,12 @@ import grails.rest.Resource
 /**
  * 视频
  */
-@Resource(uri = "/videos")
 class Video {
     String path
     long size
     String name
     Date createTime
-    String image
+    byte[] image
 
     static belongsTo = [warehouse: Warehouse]
     static constraints = {

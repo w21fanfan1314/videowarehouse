@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>视频列表</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+
+    <script src="libs/axios.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<body >
+    <div id="app">
+        <el-container>
+            <el-header>
+                <span slot="title">视频列表</span>
+            </el-header>
+            <el-main>
+                <el-row>
+                    <el-col :span="24">
+                        <el-input ></el-input>
+                        <el-button type="primary">搜索</el-button>
+                    </el-col>
+                </el-row>
+
+                <el-row :gutter="20">
+                    <el-col :span="8" v-for="video in videos" style="margin-top: 20px;">
+                        <el-card shadow="hover">
+                            <video preload="auto" controls width="100%">
+                                <source :src="video.path">
+                            </video>
+                            <span>{{video.name}}</span>
+                        </el-card>
+                    </el-col>
+                </el-row>
+            </el-main>
+        </el-container>
+    </div>
+
+    <script>
+        const DEFAULT_COUNT = 20
+        const app = new Vue({
+            el: '#app',
+            data: {
+                videos: [],
+                page: 0
+            },
+            methods: {
+                list: function(page) {
+                    axios({
+                        method: "GET",
+                        url: 'http://localhost:8080/videoData/list',
+                        params: {page: page, count: DEFAULT_COUNT},
+                        responseType: 'json',
+                        responseEncoding: 'utf8'
+                    }).then(function(resp) {
+                        console.log(resp)
+                        if (resp.status === 200) {
+                            app.videos = resp.data
+                        } else {
+                            app.$message("获取视频失败," + resp.statusText)
+                        }
+                    }).catch(function(err){
+                        app.$message("获取视频错误," + err)
+                    });
+                }
+            },
+            mounted: function(){
+                this.list(this.page)
+            }
+        })
+    </script>
+</body>
+</html>
